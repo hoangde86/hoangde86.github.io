@@ -50,6 +50,10 @@ h1{font-size:28px;margin-bottom:10px;text-align:center;color:var(--primary)}
 .page-btn:hover{border-color:var(--primary)}
 .page-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .page-btn:disabled{opacity:.5;cursor:not-allowed}
+.play-all-btn{padding:8px 18px;background:var(--primary);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:background .2s}
+.play-all-btn:hover{background:#2980b9}
+.play-all-btn.playing{background:var(--accent)}
+.play-all-btn.playing:hover{background:#c0392b}
 @media (max-width:600px){body{padding:10px}h1{font-size:22px}.grid{grid-template-columns:1fr}.tab{padding:8px 14px;font-size:13px}}
 </style>
 </head>
@@ -82,6 +86,7 @@ h1{font-size:28px;margin-bottom:10px;text-align:center;color:var(--primary)}
 <div class="controls">
 <input type="text" class="search" placeholder="🔍 Tìm kiếm từ, nghĩa..." id="searchBox">
 <span class="stats" id="stats"></span>
+<button id="playAllBtn" class="play-all-btn">▶ Phát tất cả</button>
 </div>
 
 <div class="grid" id="grid"></div>
@@ -112,6 +117,8 @@ let accent = localStorage.getItem('accent') || 'us';
 let currentAudio = null;
 let activeBtn = null;
 let speakSeq = 0;
+let playAllSeq = 0;
+let isPlayingAll = false;
 
 function googleUrl(text){
   const tld = accent === 'uk' ? 'co.uk' : 'com';
@@ -221,6 +228,37 @@ async function speak(text, btn){
   }
 }
 
+function stopPlayAll(){
+  playAllSeq++;
+  isPlayingAll = false;
+  if(currentAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
+  try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+  clearActive();
+  const btn = document.getElementById('playAllBtn');
+  if(btn){ btn.textContent = '▶ Phát tất cả'; btn.classList.remove('playing'); }
+}
+
+async function playAll(){
+  if(isPlayingAll){ stopPlayAll(); return; }
+  isPlayingAll = true;
+  const mySeq = ++playAllSeq;
+  const btn = document.getElementById('playAllBtn');
+  if(btn){ btn.textContent = '⏹ Dừng lại'; btn.classList.add('playing'); }
+  const filtered = getFiltered();
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const items = filtered.slice(start, start + PAGE_SIZE);
+  for(const item of items){
+    if(mySeq !== playAllSeq) return;
+    await speakChunk(item.word);
+    if(mySeq !== playAllSeq) return;
+    if(item.en_example){ await speakChunk(item.en_example); }
+  }
+  if(mySeq === playAllSeq){
+    isPlayingAll = false;
+    if(btn){ btn.textContent = '▶ Phát tất cả'; btn.classList.remove('playing'); }
+  }
+}
+
 function escapeHTML(s){
   return String(s).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
 }
@@ -285,6 +323,8 @@ function render(){
   pag.innerHTML = pages.join('');
 }
 
+document.getElementById('playAllBtn').addEventListener('click', playAll);
+
 document.addEventListener('click', function(e){
   if(e.target.closest('.tab')){
     const t = e.target.closest('.tab');
@@ -292,6 +332,7 @@ document.addEventListener('click', function(e){
     t.classList.add('active');
     currentList = t.dataset.list;
     currentPage = 1;
+    stopPlayAll();
     render();
     return;
   }
@@ -303,6 +344,7 @@ document.addEventListener('click', function(e){
   const pageBtn = e.target.closest('.page-btn');
   if(pageBtn && !pageBtn.disabled){
     currentPage = parseInt(pageBtn.dataset.page);
+    stopPlayAll();
     render();
     window.scrollTo({top:0, behavior:'smooth'});
   }
@@ -311,6 +353,7 @@ document.addEventListener('click', function(e){
 document.getElementById('searchBox').addEventListener('input', function(e){
   currentFilter = e.target.value;
   currentPage = 1;
+  stopPlayAll();
   render();
 });
 
