@@ -1,373 +1,683 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Đọc Kinh Thánh</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>owner — github.io</title>
+<meta name="description" content="Personal GitHub Pages site of <owner>. Engineer, tinkerer, open-source enthusiast." />
+
+<!-- Open Graph -->
+<meta property="og:title" content="owner — github.io" />
+<meta property="og:description" content="Personal site. Built with care, shipped on GitHub Pages." />
+<meta property="og:type" content="website" />
+
+<!-- Fonts: JetBrains Mono (mono) + Fraunces (display serif) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,900;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
-:root{--bg:#fdf8f0;--card:#fff;--text:#2c2c2c;--muted:#888;--primary:#7b4f2e;--accent:#c0392b;--border:#e8ddd0;--hl:#fff8e1}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;padding:20px;display:flex;flex-direction:column}
-.container{max-width:780px;width:100%;margin:0 auto;flex:1;display:flex;flex-direction:column;min-height:0}
-h1{text-align:center;font-size:24px;color:var(--primary);margin-bottom:4px;font-weight:700}
-.subtitle{text-align:center;color:var(--muted);font-size:13px;margin-bottom:20px}
+  /* =========================================================
+     Design tokens
+     ========================================================= */
+  :root{
+    --bg:        #f3efe7;      /* warm paper */
+    --bg-2:      #ece7dc;
+    --ink:       #161513;      /* near-black ink */
+    --ink-soft:  #4a463f;
+    --rule:      #1b1a18;
+    --accent:    #ff4d2e;      /* vermilion */
+    --accent-2:  #1f6feb;      /* github blue */
+    --yellow:    #f7c948;
+    --ok:        #2ea043;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --serif: "Fraunces", "Times New Roman", serif;
+  }
 
-/* Main card */
-.main-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:18px;min-height:160px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.07)}
-.progress-line{display:flex;justify-content:space-between;align-items:center}
-.progress-num{font-size:13px;color:var(--muted);font-weight:600}
-.progress-bar{flex:1;height:4px;background:#f0e8dc;border-radius:2px;margin:0 12px;overflow:hidden}
-.progress-fill{height:100%;background:var(--primary);border-radius:2px;transition:width .3s}
-.sentence-text{font-size:20px;line-height:1.75;color:var(--text);font-weight:500;min-height:80px;transition:opacity .2s}
-.sentence-text.fade{opacity:0}
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:      #0e0d0c;
+      --bg-2:    #171513;
+      --ink:     #ece7dc;
+      --ink-soft:#a9a49a;
+      --rule:    #2a2724;
+      --accent:  #ff6a4d;
+    }
+  }
 
-/* Controls */
-.controls{display:flex;gap:10px;justify-content:center;align-items:center;margin-bottom:16px;flex-wrap:wrap}
-.btn{padding:10px 22px;border:none;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;transition:all .15s}
-.btn-nav{background:var(--card);border:2px solid var(--border);color:var(--text)}
-.btn-nav:hover:not(:disabled){border-color:var(--primary);color:var(--primary)}
-.btn-nav:disabled{opacity:.4;cursor:not-allowed}
-.btn-play{background:var(--primary);color:#fff;padding:12px 36px;font-size:16px;min-width:140px}
-.btn-play:hover{background:#6a4227}
-.btn-play.playing{background:var(--accent)}
-.btn-play.playing:hover{background:#a93226}
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
 
-/* Options */
-.options{display:flex;gap:20px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:20px;font-size:14px;color:var(--muted)}
-.options label{display:flex;align-items:center;gap:6px;cursor:pointer}
-.options input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--primary)}
-.rate-group{display:flex;align-items:center;gap:8px}
-.rate-group input[type=range]{width:90px;accent-color:var(--primary);cursor:pointer}
-.rate-val{font-weight:600;color:var(--primary);min-width:28px}
-.options select{padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fff;cursor:pointer;color:var(--text);max-width:210px}
+  body{
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(255,77,46,.12), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(31,111,235,.10), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-optical-sizing:auto;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+    overflow-x:hidden;
+  }
 
-/* Sentence list */
-.list-header{font-size:13px;font-weight:700;color:var(--primary);letter-spacing:.5px;margin-bottom:10px;text-transform:uppercase}
-.sentence-list{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;overflow-y:auto;padding-right:4px}
-.sentence-list::-webkit-scrollbar{width:4px}
-.sentence-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.sentence-item{padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;line-height:1.55;color:var(--text);transition:all .15s;display:flex;gap:10px;align-items:flex-start}
-.sentence-item:hover{border-color:var(--primary);background:#fdf4ec}
-.sentence-item.active{background:var(--hl);border-color:var(--primary);border-width:2px;font-weight:600}
-.sentence-item.active .item-num{color:var(--primary)}
-.sentence-item.done .item-num::after{content:'✓';font-size:10px;margin-left:2px;color:#27ae60}
-.item-num{font-size:12px;color:var(--muted);font-weight:700;min-width:24px;padding-top:1px;flex-shrink:0}
-.item-text{flex:1}
+  /* Paper grain */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.022) 0 1px, transparent 1px 3px),
+      radial-gradient(rgba(0,0,0,.05) 1px, transparent 1px);
+    background-size: auto, 3px 3px;
+    mix-blend-mode:multiply;
+    opacity:.6;
+    z-index:1;
+  }
+  @media (prefers-color-scheme: dark){
+    body::before{ mix-blend-mode:screen; opacity:.35; }
+  }
 
-.hint{font-size:11px;color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;margin-left:8px}
+  a{ color:inherit; text-underline-offset:3px; }
+  a:hover{ color:var(--accent); }
 
-@media(max-width:580px){
-  .main-card{padding:18px 16px}
-  .sentence-text{font-size:17px}
-  .btn-play{padding:10px 24px}
-  h1{font-size:20px}
-}
+  /* =========================================================
+     Masthead — newspaper style
+     ========================================================= */
+  .masthead{
+    position:relative; z-index:2;
+    border-bottom:2px solid var(--rule);
+    padding:14px 28px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px;
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .masthead .left,.masthead .right{ display:flex; gap:18px; align-items:center; }
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--ok); display:inline-block;
+    box-shadow: 0 0 0 3px rgba(46,160,67,.2);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{ 50%{ box-shadow:0 0 0 6px rgba(46,160,67,0);} }
+
+  /* =========================================================
+     Hero
+     ========================================================= */
+  .hero{
+    position:relative; z-index:2;
+    padding: 64px 28px 48px;
+    max-width:1280px; margin:0 auto;
+    display:grid;
+    grid-template-columns: 1.4fr .8fr;
+    gap: 48px;
+    align-items:end;
+    border-bottom:1px solid var(--rule);
+  }
+  @media (max-width: 860px){
+    .hero{ grid-template-columns:1fr; gap:24px; padding-top:36px; }
+  }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:18px;
+    display:flex; gap:12px; align-items:center;
+  }
+  .eyebrow::before{
+    content:""; width:32px; height:1px; background:var(--ink);
+  }
+
+  h1.name{
+    font-family:var(--serif);
+    font-weight:900;
+    font-size: clamp(64px, 11vw, 168px);
+    line-height:.88;
+    letter-spacing:-0.03em;
+    margin:0 0 20px;
+  }
+  h1.name em{
+    font-style:italic; font-weight:600;
+    color:var(--accent);
+  }
+  h1.name .slash{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:.55em;
+    font-weight:500;
+    color:var(--ink-soft);
+    vertical-align: 0.35em;
+    margin: 0 .12em;
+  }
+
+  .tagline{
+    font-size: clamp(18px, 1.8vw, 22px);
+    max-width: 52ch;
+    color:var(--ink);
+    margin:0 0 28px;
+  }
+  .tagline b{ background: linear-gradient(180deg, transparent 58%, var(--yellow) 58% 92%, transparent 92%); padding: 0 2px; font-weight:600; }
+
+  .cta-row{
+    display:flex; flex-wrap:wrap; gap:12px;
+    font-family:var(--mono); font-size:13px;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:11px 16px;
+    border:1.5px solid var(--rule);
+    background:var(--bg);
+    color:var(--ink);
+    text-decoration:none;
+    letter-spacing:.04em;
+    transition: transform .15s ease, background .2s ease, color .2s ease;
+  }
+  .btn:hover{ transform: translate(-2px,-2px); box-shadow: 4px 4px 0 var(--rule); color:var(--ink); }
+  .btn.primary{ background:var(--ink); color:var(--bg); }
+  .btn.primary:hover{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn svg{ width:14px; height:14px; }
+
+  /* Terminal card */
+  .term{
+    font-family:var(--mono);
+    background: #0f0e0d;
+    color:#e8e4db;
+    border:1px solid var(--rule);
+    border-radius: 6px;
+    overflow:hidden;
+    box-shadow: 10px 10px 0 var(--rule);
+    font-size: 13px;
+    line-height:1.7;
+  }
+  .term-bar{
+    display:flex; gap:6px; align-items:center;
+    padding:10px 12px;
+    background:#1a1816;
+    border-bottom:1px solid #2a2724;
+  }
+  .term-bar span{
+    width:11px; height:11px; border-radius:50%;
+    display:inline-block;
+  }
+  .term-bar .r{ background:#ff5f57; }
+  .term-bar .y{ background:#febc2e; }
+  .term-bar .g{ background:#28c840; }
+  .term-bar small{
+    margin-left:10px; color:#8a847a; font-size:11px;
+  }
+  .term-body{ padding:18px 20px 22px; }
+  .term-body .p{ color:#7ce38b; }                 /* prompt */
+  .term-body .u{ color:#79c0ff; }                 /* user/path */
+  .term-body .c{ color:#8a847a; }                 /* comment */
+  .term-body .k{ color:#ff7b72; }                 /* keyword */
+  .term-body .s{ color:#f2cc60; }                 /* string */
+  .cursor{
+    display:inline-block; width:8px; height:15px;
+    background:#e8e4db; vertical-align:-2px;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* =========================================================
+     Marquee ticker
+     ========================================================= */
+  .ticker{
+    position:relative; z-index:2;
+    border-bottom:1px solid var(--rule);
+    background:var(--bg-2);
+    overflow:hidden;
+    font-family:var(--mono);
+    font-size:13px; letter-spacing:.08em; text-transform:uppercase;
+  }
+  .ticker-track{
+    display:flex; gap:48px;
+    white-space:nowrap;
+    padding:12px 0;
+    animation: slide 38s linear infinite;
+    width:max-content;
+  }
+  .ticker-track span{ display:inline-flex; align-items:center; gap:12px; color:var(--ink-soft); }
+  .ticker-track span::after{ content:"✦"; color:var(--accent); }
+  @keyframes slide{ to{ transform: translateX(-50%); } }
+
+  /* =========================================================
+     Sections
+     ========================================================= */
+  main{ position:relative; z-index:2; max-width:1280px; margin:0 auto; padding: 0 28px; }
+  section{ padding: 72px 0; border-bottom:1px solid var(--rule); }
+  section:last-of-type{ border-bottom:0; }
+
+  .section-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    gap:20px; margin-bottom: 36px;
+    border-bottom:1px dashed var(--rule);
+    padding-bottom:10px;
+  }
+  .section-head h2{
+    font-family:var(--serif);
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight:600; font-style:italic;
+    margin:0; letter-spacing:-0.02em;
+  }
+  .section-head .meta{
+    font-family:var(--mono); font-size:12px;
+    letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+
+  /* About — two-column editorial */
+  .about{ display:grid; grid-template-columns: 1.4fr 1fr; gap:56px; align-items:start; }
+  @media (max-width: 860px){ .about{ grid-template-columns:1fr; gap:28px; } }
+  .about p{ font-size:18px; max-width:58ch; }
+  .about p:first-of-type::first-letter{
+    font-family:var(--serif); font-weight:900;
+    font-size: 4.6em; float:left;
+    line-height:.85; padding: 6px 10px 0 0;
+    color:var(--accent);
+  }
+  .stats{
+    display:grid; grid-template-columns:repeat(2, 1fr);
+    gap:1px; background:var(--rule);
+    border:1px solid var(--rule);
+    font-family:var(--mono);
+  }
+  .stat{
+    background:var(--bg); padding:22px;
+  }
+  .stat .n{
+    font-family:var(--serif); font-weight:900;
+    font-size: clamp(32px, 4vw, 44px);
+    line-height:1; display:block; margin-bottom:6px;
+    letter-spacing:-.02em;
+  }
+  .stat .l{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-soft); }
+
+  /* Projects — asymmetric card grid */
+  .projects{ display:grid; grid-template-columns: repeat(6, 1fr); gap:24px; }
+  .card{
+    grid-column: span 2;
+    background:var(--bg);
+    border:1px solid var(--rule);
+    padding: 22px 22px 26px;
+    position:relative;
+    transition: transform .25s ease;
+    display:flex; flex-direction:column;
+    min-height: 220px;
+  }
+  .card.featured{ grid-column: span 4; }
+  .card.tall{ grid-row: span 2; min-height: 400px; }
+  @media (max-width: 860px){
+    .projects{ grid-template-columns:1fr; }
+    .card, .card.featured{ grid-column: span 1; }
+    .card.tall{ grid-row: auto; min-height:auto; }
+  }
+  .card:hover{ transform: translateY(-4px); }
+  .card:hover .arrow{ transform: translate(6px,-6px) rotate(-45deg); }
+  .card .tag{
+    font-family:var(--mono); font-size:11px;
+    letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); display:flex; align-items:center; gap:8px;
+    margin-bottom:14px;
+  }
+  .card .tag::before{
+    content:""; width:6px;height:6px; background:var(--accent); display:inline-block;
+  }
+  .card h3{
+    font-family:var(--serif); font-weight:600;
+    font-size: clamp(22px, 2.4vw, 30px);
+    margin:0 0 10px; letter-spacing:-0.01em; line-height:1.15;
+  }
+  .card p{ margin:0 0 20px; color:var(--ink-soft); font-size:15px; }
+  .card .foot{
+    margin-top:auto; display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--mono); font-size:12px; color:var(--ink-soft);
+  }
+  .card .stack{ display:flex; gap:8px; flex-wrap:wrap; }
+  .card .stack i{
+    font-style:normal; padding:3px 8px;
+    border:1px solid var(--rule); border-radius:999px;
+    font-size:11px;
+  }
+  .arrow{
+    display:inline-block;
+    width:14px; height:14px;
+    border-top:1.5px solid currentColor;
+    border-right:1.5px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform .25s ease;
+  }
+  .card.featured{
+    background: linear-gradient(135deg, var(--ink) 0%, #2a2724 100%);
+    color:#ece7dc;
+  }
+  .card.featured .tag,.card.featured p,.card.featured .foot{ color:#a9a49a; }
+  .card.featured .stack i{ border-color:#3a3632; }
+
+  /* Writing list */
+  .posts{ display:flex; flex-direction:column; }
+  .post{
+    display:grid; grid-template-columns: 90px 1fr auto;
+    gap:24px; align-items:baseline;
+    padding: 18px 0;
+    border-top:1px solid var(--rule);
+    transition: padding .2s ease;
+    text-decoration:none; color:inherit;
+  }
+  .post:last-child{ border-bottom:1px solid var(--rule); }
+  .post:hover{ padding-left:14px; background: linear-gradient(90deg, rgba(255,77,46,.08), transparent 40%); }
+  .post:hover h4{ color:var(--accent); }
+  .post .d{ font-family:var(--mono); font-size:12px; color:var(--ink-soft); letter-spacing:.1em; }
+  .post h4{
+    font-family:var(--serif); font-weight:600;
+    font-size: clamp(18px, 2vw, 24px);
+    margin:0; transition: color .2s ease; letter-spacing:-0.01em;
+  }
+  .post .r{ font-family:var(--mono); font-size:12px; color:var(--ink-soft); }
+  @media (max-width:600px){
+    .post{ grid-template-columns: 1fr; gap:4px; }
+    .post .r{ order:-1; }
+  }
+
+  /* Contact */
+  .contact{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 48px;
+    align-items:center;
+  }
+  @media (max-width:860px){ .contact{ grid-template-columns:1fr; } }
+  .contact h2{
+    font-family:var(--serif); font-weight:900;
+    font-size: clamp(44px, 6vw, 88px);
+    line-height:.95; margin:0 0 16px; letter-spacing:-0.03em;
+  }
+  .contact h2 em{ font-style:italic; color:var(--accent); font-weight:600; }
+  .social{
+    display:flex; flex-direction:column; gap:2px;
+    font-family:var(--mono); font-size:14px;
+  }
+  .social a{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 16px 0; border-top:1px solid var(--rule);
+    text-decoration:none; transition: padding .2s ease;
+  }
+  .social a:last-child{ border-bottom:1px solid var(--rule); }
+  .social a:hover{ padding-left:10px; }
+  .social a span:last-child{
+    color:var(--ink-soft); transition: transform .2s ease;
+  }
+  .social a:hover span:last-child{ transform: translateX(-6px); color:var(--accent); }
+
+  /* Footer */
+  footer{
+    position:relative; z-index:2;
+    border-top:2px solid var(--rule);
+    padding:24px 28px;
+    font-family:var(--mono); font-size:12px;
+    color:var(--ink-soft);
+    display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    letter-spacing:.08em; text-transform:uppercase;
+  }
+  footer a:hover{ color:var(--accent); }
+
+  /* Entrance animations */
+  @media (prefers-reduced-motion: no-preference){
+    .reveal{ opacity:0; transform: translateY(18px); animation: rise .9s cubic-bezier(.2,.7,.2,1) forwards; }
+    .reveal.d1{ animation-delay:.1s; } .reveal.d2{ animation-delay:.25s; }
+    .reveal.d3{ animation-delay:.4s; } .reveal.d4{ animation-delay:.55s; }
+    @keyframes rise{ to{ opacity:1; transform:none; } }
+  }
+
+  ::selection{ background:var(--accent); color:#fff; }
 </style>
 </head>
+
 <body>
-<div class="container">
-  <h1>📖 Đọc Kinh Thánh</h1>
-  <p class="subtitle">1 Phi-e-rơ 2 — Bấm vào câu hoặc nhấn Đọc để nghe</p>
 
-  <div class="main-card">
-    <div class="progress-line">
-      <span class="progress-num" id="progressNum">1 / 22</span>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:4.5%"></div></div>
+<!-- ===== Masthead ===== -->
+<header class="masthead">
+  <div class="left">
+    <span class="dot" aria-hidden="true"></span>
+    <span>~/owner.github.io</span>
+  </div>
+  <div class="right" aria-label="meta">
+    <span>EST. 2020</span>
+    <span>VOL. IV</span>
+    <span id="today"></span>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div>
+    <div class="eyebrow reveal">Personal site · built with &lt;html&gt; &amp; care</div>
+    <h1 class="name reveal d1">
+      owner<span class="slash">/</span><em>hello.</em>
+    </h1>
+    <p class="tagline reveal d2">
+      Kỹ sư phần mềm, <b>người gõ phím vì vui</b>, và thỉnh thoảng viết blog
+      về những công cụ nhỏ giúp công việc bớt nhàm chán. Trang này sống
+      trên GitHub Pages, được build bằng một file HTML duy nhất.
+    </p>
+    <div class="cta-row reveal d3">
+      <a class="btn primary" href="#projects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        Xem projects
+      </a>
+      <a class="btn" href="https://github.com/owner" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.93c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.78 1.2 1.78 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.29 1.19-3.1-.12-.3-.52-1.48.11-3.08 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.6.23 2.78.11 3.08.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.38-5.26 5.67.42.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+        GitHub
+      </a>
+      <a class="btn" href="#contact">Liên hệ →</a>
     </div>
-    <div class="sentence-text" id="sentenceText"></div>
   </div>
 
-  <div class="controls">
-    <button class="btn btn-nav" id="prevBtn" disabled>‹ Trước</button>
-    <button class="btn btn-play" id="playBtn">▶ Đọc</button>
-    <button class="btn btn-nav" id="nextBtn">Sau ›</button>
-  </div>
+  <aside class="term reveal d4" aria-label="terminal">
+    <div class="term-bar">
+      <span class="r"></span><span class="y"></span><span class="g"></span>
+      <small>~/owner — zsh — 80×24</small>
+    </div>
+    <div class="term-body">
+      <div><span class="p">➜</span> <span class="u">~</span> whoami</div>
+      <div>owner</div>
+      <div><span class="p">➜</span> <span class="u">~</span> cat about.txt</div>
+      <div><span class="c">// Backend engineer • TS, Go, Rust</span></div>
+      <div><span class="c">// Coffee-driven • GMT+7</span></div>
+      <div><span class="p">➜</span> <span class="u">~</span> ls -la /projects</div>
+      <div><span class="k">drwxr-xr-x</span> <span class="s">"lots of tiny tools"</span></div>
+      <div><span class="p">➜</span> <span class="u">~</span> <span class="cursor"></span></div>
+    </div>
+  </aside>
+</section>
 
-  <div class="options">
-    <label><input type="checkbox" id="autoNext"> Tự chuyển</label>
-    <div class="rate-group">
-      <span>Nguồn TTS:</span>
-      <select id="ttsSrc">
-        <option value="speech">Trình duyệt (Web Speech)</option>
-        <option value="google">Google Translate TTS</option>
-      </select>
-    </div>
-    <div class="rate-group" id="voiceGroup">
-      <span>Giọng:</span>
-      <select id="voiceSel"><option value="">Đang tải...</option></select>
-    </div>
-    <div class="rate-group" id="rateGroup">
-      <span>Tốc độ:</span>
-      <input type="range" id="rateSlider" min="0.5" max="1.5" step="0.05" value="1.20">
-      <span class="rate-val" id="rateVal">1.20</span>
-    </div>
+<!-- ===== Ticker ===== -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>Currently learning Rust</span>
+    <span>Open to OSS collabs</span>
+    <span>Building in public</span>
+    <span>Writing fewer YAMLs</span>
+    <span>Reading: Designing Data-Intensive Apps</span>
+    <span>Currently learning Rust</span>
+    <span>Open to OSS collabs</span>
+    <span>Building in public</span>
+    <span>Writing fewer YAMLs</span>
+    <span>Reading: Designing Data-Intensive Apps</span>
   </div>
-
-  <div class="list-header">Danh sách câu <span class="hint">Space = Đọc/Dừng &nbsp;·&nbsp; ← → = Trước/Sau</span></div>
-  <div class="sentence-list" id="sentenceList"></div>
 </div>
 
+<main>
+
+<!-- ===== About ===== -->
+<section id="about">
+  <div class="section-head">
+    <h2>&sect; About</h2>
+    <div class="meta">01 / 04</div>
+  </div>
+  <div class="about">
+    <div>
+      <p>
+        Mình là một kỹ sư backend đang sống ở Việt Nam, dành phần lớn thời gian
+        để viết TypeScript và Go, phần còn lại để tháo tung các công cụ
+        xem chúng chạy như thế nào. Trang này là một chiếc sổ tay công khai —
+        nơi mình ghi lại những thứ học được, những dự án nhỏ, và những bài viết
+        đôi khi hữu ích cho ai đó.
+      </p>
+      <p>
+        Mình tin vào phần mềm chậm hơn nhưng đúng hơn, tin vào việc đọc code
+        của người khác thay vì đoán, và tin rằng một trang web cá nhân
+        không cần phải là Next.js với 400 dependencies.
+      </p>
+    </div>
+    <div class="stats" aria-label="stats">
+      <div class="stat"><span class="n">120+</span><span class="l">Public repos</span></div>
+      <div class="stat"><span class="n">2.4k</span><span class="l">Stars earned</span></div>
+      <div class="stat"><span class="n">6</span><span class="l">Years shipping</span></div>
+      <div class="stat"><span class="n">∞</span><span class="l">Tabs open</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Projects ===== -->
+<section id="projects">
+  <div class="section-head">
+    <h2>&sect; Selected work</h2>
+    <div class="meta">02 / 04 · 2020—nay</div>
+  </div>
+  <div class="projects">
+
+    <a class="card featured" href="https://github.com/owner/log-lens" target="_blank" rel="noopener">
+      <div class="tag">Featured · CLI</div>
+      <h3>log-lens — grep, but for humans</h3>
+      <p>Một CLI viết bằng Rust giúp bạn điều hướng log hàng triệu dòng bằng query dạng tự nhiên. Dùng regex khi cần, dùng LLM khi lười.</p>
+      <div class="foot">
+        <div class="stack"><i>Rust</i><i>Tokio</i><i>ratatui</i></div>
+        <span>★ 842 <span class="arrow"></span></span>
+      </div>
+    </a>
+
+    <a class="card" href="https://github.com/owner/tinyq" target="_blank" rel="noopener">
+      <div class="tag">Library</div>
+      <h3>tinyq</h3>
+      <p>Hàng đợi công việc đơn giản cho Go, không cần Redis.</p>
+      <div class="foot">
+        <div class="stack"><i>Go</i><i>SQLite</i></div>
+        <span>★ 318 <span class="arrow"></span></span>
+      </div>
+    </a>
+
+    <a class="card" href="https://github.com/owner/paperframe" target="_blank" rel="noopener">
+      <div class="tag">Web</div>
+      <h3>paperframe</h3>
+      <p>Template blog tĩnh viết tay, không có JavaScript chạy runtime.</p>
+      <div class="foot">
+        <div class="stack"><i>HTML</i><i>11ty</i></div>
+        <span>★ 196 <span class="arrow"></span></span>
+      </div>
+    </a>
+
+    <a class="card" href="https://github.com/owner/snaphttp" target="_blank" rel="noopener">
+      <div class="tag">Dev tool</div>
+      <h3>snaphttp</h3>
+      <p>Ghi lại và replay HTTP request cho test integration.</p>
+      <div class="foot">
+        <div class="stack"><i>TypeScript</i><i>Node</i></div>
+        <span>★ 504 <span class="arrow"></span></span>
+      </div>
+    </a>
+
+    <a class="card" href="https://github.com/owner/dotfiles" target="_blank" rel="noopener">
+      <div class="tag">Config</div>
+      <h3>dotfiles</h3>
+      <p>Cài đặt cá nhân: zsh, nvim, tmux, wezterm — symlink mọi thứ.</p>
+      <div class="foot">
+        <div class="stack"><i>Lua</i><i>Shell</i></div>
+        <span>★ 47 <span class="arrow"></span></span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ===== Writing ===== -->
+<section id="writing">
+  <div class="section-head">
+    <h2>&sect; Writing</h2>
+    <div class="meta">03 / 04 · /posts</div>
+  </div>
+  <div class="posts">
+    <a class="post" href="#">
+      <span class="d">2026 · 03</span>
+      <h4>Vì sao mình bỏ Kubernetes cho dự án cá nhân</h4>
+      <span class="r">8 min read</span>
+    </a>
+    <a class="post" href="#">
+      <span class="d">2026 · 01</span>
+      <h4>Viết một job queue bằng SQLite — và nó đủ dùng</h4>
+      <span class="r">12 min read</span>
+    </a>
+    <a class="post" href="#">
+      <span class="d">2025 · 11</span>
+      <h4>Ghi chú về việc đọc source code của những thư viện lớn</h4>
+      <span class="r">6 min read</span>
+    </a>
+    <a class="post" href="#">
+      <span class="d">2025 · 09</span>
+      <h4>Static site vẫn là lựa chọn tốt nhất vào năm 2025</h4>
+      <span class="r">5 min read</span>
+    </a>
+    <a class="post" href="#">
+      <span class="d">2025 · 06</span>
+      <h4>Một năm dùng Neovim mà không cấu hình gì thêm</h4>
+      <span class="r">9 min read</span>
+    </a>
+  </div>
+</section>
+
+<!-- ===== Contact ===== -->
+<section id="contact">
+  <div class="section-head">
+    <h2>&sect; Elsewhere</h2>
+    <div class="meta">04 / 04</div>
+  </div>
+  <div class="contact">
+    <div>
+      <h2>Gửi cho mình <em>một dòng</em>.</h2>
+      <p style="max-width:46ch; color:var(--ink-soft); margin:0;">
+        Mình trả lời email chậm nhưng chắc. Nếu bạn muốn hỏi về công việc,
+        open-source, hoặc chỉ đơn giản là nói "chào" — cứ gõ cửa.
+      </p>
+    </div>
+    <div class="social">
+      <a href="mailto:hello@owner.dev"><span>Email</span><span>hello@owner.dev →</span></a>
+      <a href="https://github.com/owner" target="_blank" rel="noopener"><span>GitHub</span><span>@owner →</span></a>
+      <a href="https://twitter.com/owner" target="_blank" rel="noopener"><span>Twitter / X</span><span>@owner →</span></a>
+      <a href="https://linkedin.com/in/owner" target="_blank" rel="noopener"><span>LinkedIn</span><span>in/owner →</span></a>
+      <a href="/rss.xml"><span>RSS</span><span>feed.xml →</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <div>© <span id="yr"></span> owner · hand-written HTML · hosted on GitHub Pages</div>
+  <div><a href="https://github.com/owner/owner.github.io" target="_blank" rel="noopener">View source →</a></div>
+</footer>
+
 <script>
-const SENTENCES = [
-  "Phải tin Đức Chúa Jêsus-Christ, là đá góc nhà",
-  "1Vậy anh em đã từ-bỏ mọi điều độc-ác, mọi điều gian-giảo, mọi thứ giả-trá, lòng ghen-ghét và sự nói hành, 2thì hãy ham-thích sữa thiêng-liêng của Đạo, như trẻ con mới đẻ vậy, hầu cho anh em nhờ đó lớn lên mà được rỗi linh-hồn, 3nếu anh em đã nếm biết Chúa là ngọt-ngào.",
-  "4Hãy đến gần Ngài, là hòn đá sống, bị người ta loại ra, song được chọn và quí trước mặt Đức Chúa Trời, 5và anh em cũng như đá sống, được xây nên nhà thiêng-liêng, làm chức tế-lễ thánh, đặng dâng của tế-lễ thiêng-liêng, nhờ Đức Chúa Jêsus-Christ mà đẹp ý Đức Chúa Trời.",
-  "6Vì trong Kinh-thánh có chép rằng: Nầy, ta đặt tại Si-ôn hòn đá góc nhà đã chọn-lựa và quí-báu; Ai tin đến đá ấy sẽ không bị xấu-hổ.",
-  "7Vậy nên, cho anh em là kẻ đã tin, thì là đá quí; nhưng cho những kẻ không tin, thì Hòn đá mà bị thợ xây nhà loại ra, Bèn trở nên đá góc nhà, là Đá gây cho vấp-váp, là đá lớn làm cho sa-ngã; 8họ bị vấp đá đó, vì không vâng-phục Đạo, và điều ấy đã định sẵn cho họ rồi.",
-  "9Nhưng anh em là dòng-giống được lựa-chọn, là chức thầy tế-lễ nhà vua, là dân thánh, là dân thuộc về Đức Chúa Trời, hầu cho anh em rao-giảng nhân-đức của Đấng đã gọi anh em ra khỏi nơi tối-tăm, đến nơi sáng-láng lạ-lùng của Ngài; 10anh em ngày trước không phải là một dân, mà bây giờ là dân Đức Chúa Trời, trước không được thương-xót, mà bây giờ được thương-xót.",
-  "Giữ cho khỏi những sự ham-muốn xác-thịt.",
-  "11Hỡi kẻ rất yêu-dấu, anh em như người ở trọ, kẻ đi đường, tôi khuyên phải kiêng những điều xác-thịt ưa-thích, là điều chống-trả với linh-hồn.",
-  "12Phải ăn-ở ngay-lành giữa dân ngoại, hầu cho họ, là kẻ vẫn gièm-chê anh em như người gian-ác, đã thấy việc lành anh em, thì đến ngày Chúa thăm-viếng, họ ngợi-khen Đức Chúa Trời.",
-  "Bổn-phận đối với các bậc có quyền",
-  "13Vì cớ Chúa, hãy phục theo mọi phép-tắc loài người lập lên, hoặc vua, như đấng rất cao, 14hoặc các quan, như người vua sai ra để phạt kẻ làm dữ và khen người làm lành.",
-  "15Vì anh em làm điều lành để ngăn miệng những kẻ ngu-muội dại-dột, ấy là ý-muốn của Đức Chúa Trời.",
-  "16Hãy ăn-ở như người tự-do, nhưng chớ dùng tự-do làm cái màn che sự hung-ác, song phải coi mình là tôi-mọi Đức Chúa Trời. 17Hãy kính mọi người; yêu anh em; kính-sợ Đức Chúa Trời; tôn-trọng vua.",
-  "Bổn-phận kẻ tôi-tớ",
-  "18Hỡi kẻ làm tôi-tớ, hãy lấy lòng rất kính-sợ mà phục theo chủ mình, chẳng những phục người chủ hiền-lành mà thôi, lại phải phục người chủ khó tánh nữa.",
-  "19Vì nhân cớ lương-tâm đối với Đức Chúa Trời, mà chịu khốn-nạn trong khi bị oan-ức, ấy là một ơn phước.",
-  "20Vả, mình làm điều ác, bị đánh mà hay nhịn-chịu, thì có đáng khoe gì? Nhưng nếu anh em làm lành, mà nhịn-chịu sự khốn-khó, ấy là một ơn phước trước mặt Đức Chúa Trời.",
-  "21Anh em đã được kêu-gọi đến sự đó, vì Đấng Christ cũng đã chịu khổ cho anh em, để lại cho anh em một gương, hầu cho anh em noi dấu chân Ngài;",
-  "22Ngài chưa hề phạm tội, trong miệng Ngài không thấy có chút chi dối-trá;",
-  "23Ngài bị rủa mà chẳng rủa lại, chịu nạn mà không hề ngăm-dọa, nhưng cứ phó mình cho Đấng xử-đoán công-bình;",
-  "24Ngài gánh tội-lỗi chúng ta trong thân-thể Ngài trên cây gỗ, hầu cho chúng ta là kẻ đã chết về tội-lỗi, được sống cho sự công-bình; lại nhân những lằn đòn của Ngài mà anh em đã được lành bịnh.",
-  "25Vì anh em vốn giống như con chiên lạc, mà bây giờ đã trở về cùng Đấng chăn-chiên và Giám-mục của linh-hồn mình."
-];
-
-const TOTAL = SENTENCES.length;
-let current = 0;
-let isPlaying = false;
-let done = new Set();
-
-const sentenceTextEl = document.getElementById('sentenceText');
-const progressNumEl  = document.getElementById('progressNum');
-const progressFillEl = document.getElementById('progressFill');
-const playBtn        = document.getElementById('playBtn');
-const prevBtn        = document.getElementById('prevBtn');
-const nextBtn        = document.getElementById('nextBtn');
-const autoNextEl     = document.getElementById('autoNext');
-const rateSlider     = document.getElementById('rateSlider');
-const rateValEl      = document.getElementById('rateVal');
-const listEl         = document.getElementById('sentenceList');
-const ttsSrcEl       = document.getElementById('ttsSrc');
-const voiceSelEl     = document.getElementById('voiceSel');
-const voiceGroupEl   = document.getElementById('voiceGroup');
-const rateGroupEl    = document.getElementById('rateGroup');
-
-// Build sentence list
-function buildList(){
-  listEl.innerHTML = SENTENCES.map(function(s, i){
-    return '<div class="sentence-item" data-idx="' + i + '">' +
-      '<span class="item-num">' + (i+1) + '</span>' +
-      '<span class="item-text">' + escHTML(s) + '</span>' +
-    '</div>';
-  }).join('');
-}
-
-function escHTML(s){
-  return s.replace(/[&<>"']/g, function(c){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-  });
-}
-
-function updateUI(){
-  sentenceTextEl.textContent = SENTENCES[current];
-  progressNumEl.textContent = (current+1) + ' / ' + TOTAL;
-  progressFillEl.style.width = ((current+1)/TOTAL*100).toFixed(1) + '%';
-  prevBtn.disabled = current === 0;
-  nextBtn.disabled = current === TOTAL - 1;
-
-  // Scroll list item into view
-  const items = listEl.querySelectorAll('.sentence-item');
-  items.forEach(function(el, i){
-    el.classList.toggle('active', i === current);
-    el.classList.toggle('done', done.has(i) && i !== current);
-  });
-  const activeItem = listEl.querySelector('.sentence-item.active');
-  if(activeItem) activeItem.scrollIntoView({block:'nearest', behavior:'smooth'});
-}
-
-function goto(idx){
-  stopSpeak();
-  current = idx;
-  updateUI();
-}
-
-// Speech
-let utter = null;
-let currentAudio = null;
-let speakSeq = 0;
-function getRate(){ return parseFloat(rateSlider.value); }
-
-function cleanForTts(text){
-  // Remove verse numbers glued to words, e.g. "1Vậy", "2thì", "10anh"
-  return text.replace(/\d+(?=[A-Za-zÀ-ỹĂăÂâĐđÊêÔôƠơƯư])/g, '').trim();
-}
-
-function googleTtsUrl(text){
-  return 'https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=' + encodeURIComponent(text);
-}
-
-function splitChunks(text, max){
-  max = max || 180;
-  if(text.length <= max) return [text];
-  var chunks = [], remaining = text;
-  while(remaining.length > max){
-    var idx = remaining.lastIndexOf(' ', max);
-    if(idx < 60) idx = max;
-    chunks.push(remaining.slice(0, idx).trim());
-    remaining = remaining.slice(idx).trim();
-  }
-  if(remaining) chunks.push(remaining);
-  return chunks;
-}
-
-function playAudioUrl(url){
-  return new Promise(function(resolve, reject){
-    var a = new Audio();
-    a.src = url;
-    currentAudio = a;
-    var settled = false;
-    var fin = function(ok){ if(settled) return; settled=true; currentAudio=null; ok?resolve():reject(); };
-    a.onended = function(){ fin(true); };
-    a.onerror = function(){ fin(false); };
-    var tm = setTimeout(function(){ fin(false); }, 10000);
-    a.onloadedmetadata = function(){ clearTimeout(tm); };
-    a.play().catch(function(){ fin(false); });
-  });
-}
-
-function speakViaSpeech(text){
-  return new Promise(function(resolve){
-    if(!('speechSynthesis' in window)){ resolve(); return; }
-    try{ window.speechSynthesis.cancel(); }catch(e){}
-    utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'vi-VN';
-    utter.rate = getRate();
-    var voiceName = voiceSelEl.value;
-    if(voiceName){
-      var voices = window.speechSynthesis.getVoices();
-      var v = voices.find(function(x){ return x.name === voiceName; });
-      if(v) utter.voice = v;
-    } else {
-      var voices = window.speechSynthesis.getVoices();
-      var v = voices.find(function(x){ return x.lang === 'vi-VN'; }) ||
-              voices.find(function(x){ return x.lang.startsWith('vi'); });
-      if(v) utter.voice = v;
-    }
-    utter.onend = function(){ resolve(); };
-    utter.onerror = function(){ resolve(); };
-    window.speechSynthesis.speak(utter);
-  });
-}
-
-async function startSpeak(){
-  stopSpeak();
-  isPlaying = true;
-  var mySeq = ++speakSeq;
-  playBtn.textContent = '⏹ Dừng';
-  playBtn.classList.add('playing');
-
-  var text = cleanForTts(SENTENCES[current]);
-  var src = ttsSrcEl.value;
-
-  if(src === 'google'){
-    var chunks = splitChunks(text);
-    for(var i = 0; i < chunks.length; i++){
-      if(mySeq !== speakSeq) return;
-      try{ await playAudioUrl(googleTtsUrl(chunks[i])); }catch(e){}
-    }
-  } else {
-    if(mySeq !== speakSeq) return;
-    await speakViaSpeech(text);
-  }
-
-  if(mySeq !== speakSeq) return;
-  done.add(current);
-  isPlaying = false;
-  playBtn.textContent = '▶ Đọc';
-  playBtn.classList.remove('playing');
-  updateUI();
-  if(autoNextEl.checked && current < TOTAL - 1){
-    current++;
-    updateUI();
-    setTimeout(startSpeak, 400);
-  }
-}
-
-function stopSpeak(){
-  speakSeq++;
-  if(currentAudio){ try{ currentAudio.pause(); }catch(e){} currentAudio = null; }
-  if(utter){ try{ window.speechSynthesis.cancel(); }catch(e){} utter = null; }
-  isPlaying = false;
-  playBtn.textContent = '▶ Đọc';
-  playBtn.classList.remove('playing');
-}
-
-function populateVoices(){
-  if(!('speechSynthesis' in window)) return;
-  var voices = window.speechSynthesis.getVoices();
-  var vi = voices.filter(function(v){ return v.lang.startsWith('vi'); });
-  if(vi.length === 0){
-    voiceSelEl.innerHTML = '<option value="">Không có giọng vi (dùng mặc định)</option>';
-    return;
-  }
-  voiceSelEl.innerHTML = vi.map(function(v){
-    return '<option value="' + escHTML(v.name) + '">' + escHTML(v.name) + (v.localService?' (offline)':' (online)') + '</option>';
-  }).join('');
-}
-
-function updateTtsUI(){
-  var src = ttsSrcEl.value;
-  voiceGroupEl.style.display = src === 'speech' ? '' : 'none';
-  rateGroupEl.style.display  = src === 'speech' ? '' : 'none';
-  localStorage.setItem('kt_ttsSrc', src);
-}
-
-// Events
-playBtn.addEventListener('click', function(){
-  if(isPlaying){ stopSpeak(); } else { startSpeak(); }
-});
-
-prevBtn.addEventListener('click', function(){ if(current > 0) goto(current - 1); });
-nextBtn.addEventListener('click', function(){ if(current < TOTAL - 1) goto(current + 1); });
-
-rateSlider.addEventListener('input', function(){
-  rateValEl.textContent = parseFloat(rateSlider.value).toFixed(2);
-  if(isPlaying && ttsSrcEl.value === 'speech'){ startSpeak(); }
-});
-
-ttsSrcEl.addEventListener('change', function(){
-  stopSpeak();
-  updateTtsUI();
-});
-
-listEl.addEventListener('click', function(e){
-  const item = e.target.closest('.sentence-item');
-  if(!item) return;
-  goto(parseInt(item.dataset.idx));
-  startSpeak();
-});
-
-document.addEventListener('keydown', function(e){
-  if(e.target.tagName === 'INPUT') return;
-  if(e.key === ' '){ e.preventDefault(); isPlaying ? stopSpeak() : startSpeak(); }
-  if(e.key === 'ArrowLeft' && current > 0){ goto(current - 1); }
-  if(e.key === 'ArrowRight' && current < TOTAL - 1){ goto(current + 1); }
-});
-
-// Init TTS source from localStorage
-var savedSrc = localStorage.getItem('kt_ttsSrc');
-if(savedSrc) ttsSrcEl.value = savedSrc;
-updateTtsUI();
-
-// Init voices (Chrome loads async)
-if('speechSynthesis' in window){
-  window.speechSynthesis.onvoiceschanged = function(){ populateVoices(); };
-  populateVoices();
-}
-
-buildList();
-updateUI();
+  // Dynamic date
+  const d = new Date();
+  const fmt = d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
+  document.getElementById('today').textContent = fmt;
+  document.getElementById('yr').textContent = d.getFullYear();
 </script>
+
 </body>
 </html>
