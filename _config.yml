@@ -1,0 +1,120 @@
+# The Site Configuration
+
+# Import the theme
+theme: jekyll-theme-chirpy
+
+lang: vi
+timezone: Asia/Ho_Chi_Minh
+
+title: Hoang's Blog
+tagline: DevOps • Cloud • Linux
+
+description: >-
+  Blog cá nhân về DevOps, Cloud, Linux và lập trình.
+
+url: "https://hoangde86.github.io"
+
+github:
+  username: hoangde86
+
+social:
+  name: Hoang Ho Xuan
+  email: hoang.hoxuan@gmail.com
+  links:
+    - https://github.com/hoangde86
+
+# Bỏ CDN mặc định của theme demo — dùng ảnh local
+cdn:
+
+# Để trống = theo hệ thống (có nút chuyển dark/light ở góc trái)
+# Giống trstringer.com: hỗ trợ cả light lẫn dark
+theme_mode: # [light | dark]
+
+# Avatar hiển thị trên sidebar (đặt ảnh tại assets/img/avatar.jpg)
+avatar: /assets/img/avatar.jpg
+
+# Social preview image cho SEO
+social_preview_image:
+
+toc: true
+
+comments:
+  provider: # [disqus | utterances | giscus]
+
+pwa:
+  enabled: true
+  cache:
+    enabled: true
+
+paginate: 10
+
+baseurl: ""
+
+# ------------ Không nên chỉnh phần dưới ------------------
+
+kramdown:
+  footnote_backlink: "&#8617;&#xfe0e;"
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: highlight
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
+
+collections:
+  tabs:
+    output: true
+    sort_by: order
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      comments: true
+      toc: true
+      permalink: /posts/:title/
+  - scope:
+      path: _drafts
+    values:
+      comments: false
+  - scope:
+      path: ""
+      type: tabs
+    values:
+      layout: page
+      permalink: /:title/
+
+sass:
+  style: compressed
+
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  profile: false
+  blanklines: false
+  ignore:
+    envs: [development]
+
+exclude:
+  - "*.gem"
+  - "*.gemspec"
+  - docs
+  - tools
+  - README.md
+  - LICENSE
+  - "*.config.js"
+  - "package*.json"
+
+jekyll-archives:
+  enabled: [categories, tags]
+  layouts:
+    category: category
+    tag: tag
+  permalinks:
+    tag: /tags/:name/
+    category: /categories/:name/

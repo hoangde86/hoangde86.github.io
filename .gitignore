@@ -1,0 +1,22 @@
+# Bundler cache
+.bundle
+vendor
+
+# Jekyll cache & build output
+.jekyll-cache
+.jekyll-metadata
+_site
+
+# Ruby
+*.gem
+*.rbc
+.ruby-version
+Gemfile.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea

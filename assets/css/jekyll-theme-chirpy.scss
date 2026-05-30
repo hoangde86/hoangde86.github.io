@@ -1,0 +1,239 @@
+---
+---
+
+@use 'main';
+
+/* =====================================================
+   Custom overrides — giống trstringer.com style
+   ===================================================== */
+
+/* ---- Light mode overrides ---- */
+[data-mode='light'],
+:root:not([data-mode='dark']) {
+  --sidebar-bg: #f0f4f8;
+  --sidebar-border-color: #dde3ea;
+  --sidebar-hover-bg: rgba(13, 110, 253, 0.08);
+  --sidebar-active-color: #0d6efd;
+  --site-title-color: #1a1a2e;
+  --site-subtitle-color: #5a6a7a;
+  --avatar-border-color: #ffffff;
+
+  --link-color: #0550ae;
+  --toc-highlight: #0550ae;
+
+  --main-bg: #ffffff;
+  --text-color: #24292f;
+  --heading-color: #1a1a2e;
+
+  --highlight-bg-color: #f6f8fa;
+  --code-color: #24292f;
+  --inline-code-bg: rgba(175, 184, 193, 0.2);
+  --language-border-color: #d8dee4;
+
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.06);
+}
+
+/* ---- Dark mode overrides ---- */
+[data-mode='dark'] {
+  --sidebar-bg: #161b22;
+  --sidebar-border-color: #21262d;
+  --sidebar-hover-bg: rgba(56, 139, 253, 0.1);
+  --sidebar-active-color: #58a6ff;
+  --site-title-color: #e6edf3;
+  --site-subtitle-color: #8b949e;
+
+  --main-bg: #0d1117;
+  --text-color: #c9d1d9;
+  --heading-color: #e6edf3;
+  --link-color: #58a6ff;
+  --toc-highlight: #58a6ff;
+
+  --highlight-bg-color: #161b22;
+  --code-color: #c9d1d9;
+  --inline-code-bg: rgba(110, 118, 129, 0.2);
+  --language-border-color: #30363d;
+
+  --card-bg: #161b22;
+  --card-hover-bg: #1c2128;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+
+  --topbar-bg: rgba(13, 17, 23, 0.85);
+  --topbar-text-color: #c9d1d9;
+  --search-border-color: #30363d;
+}
+
+/* =====================================================
+   Sidebar — typography & spacing
+   ===================================================== */
+
+#sidebar {
+  font-size: 0.95rem;
+
+  .site-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .site-subtitle {
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    opacity: 0.75;
+  }
+
+  .nav-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    border-radius: 6px;
+    transition: background 0.15s ease, color 0.15s ease;
+    padding: 0.45rem 0.85rem;
+  }
+
+  .avatar {
+    img {
+      border-radius: 50%;
+      border: 3px solid var(--avatar-border-color);
+      box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15);
+    }
+  }
+}
+
+/* =====================================================
+   Home — post list
+   ===================================================== */
+
+.post-preview {
+  border-radius: 8px;
+  transition: box-shadow 0.15s ease;
+
+  &:hover {
+    box-shadow: var(--card-shadow);
+  }
+
+  h1.post-title, h2.post-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .post-meta {
+    font-size: 0.78rem;
+  }
+}
+
+/* =====================================================
+   Post content — typography
+   ===================================================== */
+
+.post-content {
+  h2, h3, h4 {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  h2 {
+    font-size: 1.45rem;
+    margin-top: 2rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--main-border-color);
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    margin-top: 1.6rem;
+  }
+
+  p {
+    line-height: 1.75;
+  }
+
+  a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  /* Inline code */
+  code:not([class]) {
+    font-size: 0.85em;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    background: var(--inline-code-bg);
+  }
+
+  /* Tables */
+  table {
+    font-size: 0.9rem;
+    border-radius: 6px;
+    overflow: hidden;
+
+    thead {
+      background: var(--highlight-bg-color);
+      font-weight: 600;
+    }
+  }
+
+  /* Blockquotes */
+  blockquote {
+    border-left: 4px solid var(--link-color);
+    border-radius: 0 4px 4px 0;
+    opacity: 0.9;
+  }
+}
+
+/* =====================================================
+   Code blocks
+   ===================================================== */
+
+div.highlight {
+  border-radius: 8px;
+  border: 1px solid var(--language-border-color);
+
+  .code-header {
+    border-radius: 8px 8px 0 0;
+  }
+}
+
+/* =====================================================
+   Tags
+   ===================================================== */
+
+.post-tag,
+a.tag {
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 99px;
+  padding: 0.2em 0.75em;
+  transition: background 0.15s ease;
+}
+
+/* =====================================================
+   TOC — Table of Contents
+   ===================================================== */
+
+#toc-wrapper {
+  font-size: 0.82rem;
+
+  li {
+    line-height: 1.6;
+  }
+}
+
+/* =====================================================
+   Topbar
+   ===================================================== */
+
+#topbar-wrapper {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* =====================================================
+   Back to top button
+   ===================================================== */
+
+#back-to-top {
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
