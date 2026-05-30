@@ -1,4 +1,161 @@
----
-layout: home
-# Index page
----
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoàng đế lề đường Lnk.Bio</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(180deg, #1d2643 0%, #3e334e 50%, #5c3843 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            color: #ffffff;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            text-align: center;
+        }
+
+        /* Profile Section */
+        .profile-img {
+            width: 96px;
+            height: 96px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px auto;
+            overflow: hidden;
+        }
+
+        /* SVG thay thế cho Avatar phi hành gia */
+        .profile-img svg {
+            width: 60px;
+            height: 60px;
+            fill: #111;
+        }
+
+        .profile-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 35px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Bible Verses Section */
+        .verse-block {
+            margin-bottom: 35px;
+            padding: 0 10px;
+        }
+
+        .verse-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .verse-ref {
+            font-size: 0.85rem;
+            color: #4da6ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .verse-ref:hover {
+            text-decoration: underline;
+        }
+
+        /* Buttons Section */
+        .btn {
+            display: block;
+            width: 100%;
+            background-color: #0c101d;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 16px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-top: 25px;
+            letter-spacing: 1px;
+            transition: background-color 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn:hover {
+            background-color: #161d33;
+        }
+
+        /* Footer Footer Lnk.Bio */
+        .footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-link:hover {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="profile-img">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2a10 10 0 0 0-10 10 10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
+        </div>
+        <h1 class="profile-name">Hoàng đế lề đường</h1>
+
+        <div class="verse-block">
+            <p class="verse-text">"Hỡi người! Ngài đã tỏ cho ngươi điều gì là thiện; cái điều mà Đức Giê-hô-va đòi ngươi há chẳng phải là làm sự công bình, ưa sự nhơn từ và bước đi cách khiêm nhường với Đức Chúa Trời ngươi sao?"</p>
+            <a href="#" class="verse-ref">Mi-chê 6:8</a>
+        </div>
+
+        <div class="verse-block">
+            <p class="verse-text">"Hãy vui mừng mãi mãi, cầu nguyện không thôi, phàm việc gì cũng phải tạ ơn Chúa; vì ý muốn của Đức Chúa Trời trong Đức Chúa Jêsus Christ đối với anh em là như vậy."</p>
+            <a href="#" class="verse-ref">1 Tê-sa-lô-ni-ca 5:16-18</a>
+        </div>
+
+        <div class="verse-block">
+            <p class="verse-text">Nhưng sự khôn ngoan từ trên mà xuống thì trước hết là thanh sạch, sau lại hòa thuận, tiết độ, nhu mì, đầy dẫy lòng thương xót và bông trái lành, không có sự hai lòng và giả hình.</p>
+            <a href="#" class="verse-ref">Gia-cơ 3:17</a>
+        </div>
+
+        <a href="#" class="btn">AI CƠ ĐỐC</a>
+ 
+        <a href="GROK.COM" class="btn">GROK.COM</a>
+        <a href="CLAUDE.AI" class="btn">CLAUDE.AI</a>
+        <a href="CHATGPT.COM" class="btn">CHATGPT.COM</a>
+        <a href="GEMINI.GOOGLE.COM" class="btn">GEMINI.GOOGLE.COM</a>
+         
+    </div>
+
+</body>
+</html>
