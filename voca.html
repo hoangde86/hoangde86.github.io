@@ -37,6 +37,11 @@ h1{font-size:28px;margin-bottom:10px;text-align:center;color:var(--primary)}
 .audio-btn:hover{background:#e3f2fd}
 .audio-btn.speaking{background:#fff3e0;color:var(--accent)}
 .audio-btn:active{transform:scale(.92)}
+.expand-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;color:var(--muted);transition:transform .2s,color .2s}
+.expand-btn:hover{color:var(--primary)}
+.expand-btn.collapsed{transform:rotate(-90deg)}
+.details{max-height:500px;overflow:hidden;transition:max-height .3s ease,opacity .3s ease}
+.details.collapsed{max-height:0;opacity:0;pointer-events:none}
 .ipa{color:var(--ipa);font-size:14px;font-style:italic}
 .pos{color:var(--pos);font-size:12px;background:#e8f8f0;padding:2px 8px;border-radius:10px;font-weight:500}
 .meaning{color:var(--text);font-size:15px;margin:6px 0 8px;font-weight:500}
@@ -47,6 +52,10 @@ h1{font-size:28px;margin-bottom:10px;text-align:center;color:var(--primary)}
 .example .vi{color:var(--muted);font-size:13px;font-style:italic}
 .empty{text-align:center;padding:40px;color:var(--muted);font-size:16px}
 .footer{text-align:center;margin-top:30px;color:var(--muted);font-size:13px}
+.toggle-controls-btn{background:none;border:none;cursor:pointer;font-size:18px;padding:8px 12px;border-radius:6px;color:var(--primary);transition:background .2s,transform .2s}
+.toggle-controls-btn:hover{background:#e3f2fd}
+.controls-section{transition:max-height .3s ease,opacity .3s ease;max-height:500px;overflow:hidden;opacity:1}
+.controls-section.hidden{max-height:0;opacity:0;pointer-events:none}
 .scroll-top{position:fixed;bottom:24px;right:24px;width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;z-index:999;display:flex;align-items:center;justify-content:center}
 .scroll-top.show{opacity:1;transform:translateY(0)}
 .scroll-top:hover{background:#2980b9}
@@ -61,15 +70,20 @@ h1{font-size:28px;margin-bottom:10px;text-align:center;color:var(--primary)}
 .play-all-btn:hover{background:#2980b9}
 .play-all-btn.playing{background:var(--accent)}
 .play-all-btn.playing:hover{background:#c0392b}
-@media (max-width:600px){body{padding:10px}h1{font-size:22px}.grid{grid-template-columns:1fr}.tab{padding:8px 14px;font-size:13px}}
+@media (max-width:600px){body{padding:10px}h1{font-size:22px}.grid{grid-template-columns:1fr}.tab{padding:8px 14px;font-size:13px}#categoryFilter{flex:1;min-width:140px}}
+#categoryFilter{border-color:var(--primary)!important}#categoryFilter:focus{border-color:var(--primary);outline:none}
 </style>
 </head>
 <body>
 <div class="container">
 <div class="sticky-header">
-<h1> <a href="/" class="btn">📚</a> Học từ vựng tiếng Anh</h1>
+<div style="display:flex;align-items:center;justify-content:center;gap:10px">
+<h1 style="margin-bottom:0"> <a href="/" class="btn">📚</a> Học từ vựng tiếng Anh</h1>
+<button id="toggleControlsBtn" class="toggle-controls-btn" title="Ẩn/hiện chức năng">═</button>
+</div>
 <p class="subtitle">Click vào từ hoặc câu ví dụ để nghe phát âm 🔊</p>
 
+<div class="controls-section" id="controlsSection">
 <div class="voice-bar">
 <label>Nguồn phát âm:</label>
 <select id="voiceSel">
@@ -87,6 +101,10 @@ h1{font-size:28px;margin-bottom:10px;text-align:center;color:var(--primary)}
 <input type="checkbox" id="skipExample" style="width:15px;height:15px;cursor:pointer">
 Bỏ qua câu ví dụ
 </label>
+<label style="margin-left:14px;display:flex;align-items:center;gap:5px;cursor:pointer">
+<input type="checkbox" id="showDetails" style="width:15px;height:15px;cursor:pointer" checked>
+Hiện chi tiết ngay
+</label>
 </div>
 
 <div class="tabs">
@@ -101,10 +119,14 @@ Bỏ qua câu ví dụ
 
 <div class="controls">
 <input type="text" class="search" placeholder="🔍 Tìm kiếm từ, nghĩa..." id="searchBox">
+<select id="categoryFilter" style="padding:10px 12px;border:2px solid var(--border);border-radius:8px;font-size:14px;background:#fff;cursor:pointer;transition:border-color .2s">
+<option value="">Tất cả chủ đề</option>
+</select>
 <span class="stats" id="stats"></span>
 <button id="playAllBtn" class="play-all-btn">▶ Phát tất cả</button>
 </div>
 <div class="pagination" id="pagination-top"></div>
+</div>
 </div>
 
 <div class="grid" id="grid"></div>
@@ -2066,6 +2088,64 @@ const DATA = {
 
 let currentList = 'movers';
 let currentPage = 1;
+let currentCategory = '';
+const CATEGORY_KEYWORDS = {
+  'Gia đình': ['mother', 'father', 'brother', 'sister', 'parent', 'family', 'grandpa', 'grandma', 'aunt', 'uncle', 'cousin', 'baby', 'child', 'son', 'daughter', 'wife', 'husband', 'mẹ', 'bố', 'anh', 'chị', 'em', 'cha', 'cháu', 'chú'],
+  'Động vật': ['cat', 'dog', 'bird', 'fish', 'animal', 'cow', 'horse', 'pig', 'sheep', 'chicken', 'lion', 'tiger', 'elephant', 'monkey', 'rabbit', 'bear', 'mouse', 'snake', 'động vật', 'mèo', 'chó', 'chim', 'cá', 'bò', 'ngựa', 'lợn', 'gà'],
+  'Ăn uống': ['food', 'eat', 'drink', 'apple', 'banana', 'orange', 'bread', 'rice', 'meat', 'chicken', 'fish', 'vegetable', 'fruit', 'milk', 'juice', 'tea', 'coffee', 'water', 'lunch', 'dinner', 'breakfast', 'cookie', 'chocolate', 'cheese', 'barbecue', 'ăn', 'uống', 'trái cây', 'thức ăn', 'rau', 'thịt', 'cơm', 'bánh', 'nước', 'phô mai'],
+  'Thể thao': ['sport', 'play', 'football', 'basketball', 'tennis', 'swimming', 'running', 'gym', 'game', 'team', 'ball', 'thể thao', 'bóng', 'chạy', 'đá bóng', 'bơi', 'thể dục'],
+  'Màu sắc': ['red', 'blue', 'green', 'yellow', 'black', 'white', 'orange', 'purple', 'pink', 'color', 'grey', 'brown', 'đỏ', 'xanh', 'vàng', 'đen', 'trắng', 'hồng', 'tím', 'màu'],
+  'Thời tiết': ['weather', 'rain', 'sun', 'snow', 'wind', 'cloud', 'hot', 'cold', 'warm', 'wet', 'dry', 'storm', 'temperature', 'spring', 'summer', 'autumn', 'winter', 'season', 'thời tiết', 'mưa', 'nắng', 'tuyết', 'gió', 'nóng', 'lạnh', 'mùa xuân', 'mùa hè', 'mùa thu', 'mùa đông'],
+  'Nhà cửa': ['house', 'home', 'room', 'door', 'window', 'bed', 'table', 'chair', 'kitchen', 'bathroom', 'living', 'bedroom', 'wall', 'floor', 'roof', 'nhà', 'phòng', 'cửa', 'cửa sổ', 'giường', 'bàn', 'ghế', 'bếp', 'phòng tắm'],
+  'Trường học': ['school', 'class', 'student', 'teacher', 'book', 'pen', 'pencil', 'desk', 'lesson', 'learn', 'study', 'exam', 'subject', 'homework', 'trường', 'lớp', 'học sinh', 'thầy', 'sách', 'bút', 'bài tập'],
+  'Quần áo': ['clothes', 'shirt', 'dress', 'pants', 'shoes', 'coat', 'hat', 'socks', 'jacket', 'skirt', 'sweater', 'wear', 'quần áo', 'áo', 'quần', 'giày', 'áo khoác', 'nón', 'tất', 'váy'],
+  'Số đếm': ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'number', 'count', 'twenty', 'thirty', 'hundred', 'thousand', 'million', 'số đếm', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín', 'mười'],
+  'Thời gian': ['time', 'day', 'week', 'month', 'year', 'hour', 'minute', 'second', 'morning', 'afternoon', 'evening', 'night', 'today', 'tomorrow', 'yesterday', 'now', 'soon', 'calendar', 'o\'clock', 'thời gian', 'ngày', 'tuần', 'tháng', 'giờ', 'phút', 'buổi sáng', 'buổi chiều', 'buổi tối', 'đêm', 'hôm nay', 'lịch'],
+  'Du lịch': ['travel', 'trip', 'tourist', 'hotel', 'airport', 'journey', 'ticket', 'vacation', 'holiday', 'visit', 'du lịch', 'chuyến đi', 'khách sạn', 'sân bay'],
+  'Cơ thể & Sức khỏe': ['body', 'head', 'hand', 'arm', 'leg', 'eye', 'ear', 'nose', 'mouth', 'hair', 'health', 'sick', 'illness', 'doctor', 'hospital', 'medicine', 'headache', 'earache', 'fever', 'cough', 'nurse', 'dentist', 'ambulance', 'cơ thể', 'sức khỏe', 'bàn tay', 'cánh tay', 'đôi mắt', 'đôi tai', 'mái tóc', 'sức khoẻ', 'ốm', 'bệnh viện', 'bác sĩ', 'y tá', 'thuốc', 'nha sĩ', 'xe cứu thương'],
+  'Cảm xúc & Tính cách': ['happy', 'sad', 'angry', 'afraid', 'scared', 'excited', 'tired', 'bored', 'worried', 'surprised', 'feeling', 'emotion', 'kind', 'friendly', 'honest', 'brave', 'lazy', 'shy', 'funny', 'cảm xúc', 'tính cách', 'vui vẻ', 'buồn bã', 'tức giận', 'hạnh phúc', 'lo lắng', 'ngạc nhiên', 'tốt bụng', 'thân thiện', 'trung thực', 'dũng cảm', 'lười biếng', 'nhút nhát'],
+  'Công việc & Nghề nghiệp': ['job', 'work', 'career', 'office', 'boss', 'employee', 'employer', 'salary', 'interview', 'engineer', 'farmer', 'worker', 'manager', 'colleague', 'company', 'actor', 'actress', 'artist', 'astronaut', 'businessman', 'businesswoman', 'nghề nghiệp', 'văn phòng', 'nhân viên', 'tiền lương', 'phỏng vấn', 'cuộc họp', 'kỹ sư', 'nông dân', 'quản lý', 'đồng nghiệp', 'diễn viên', 'nghệ sĩ', 'phi hành gia'],
+  'Công nghệ': ['computer', 'phone', 'internet', 'app', 'software', 'website', 'email', 'laptop', 'screen', 'technology', 'digital', 'online', 'download', 'upload', 'device', 'công nghệ', 'máy tính', 'điện thoại', 'ứng dụng', 'phần mềm', 'trang web', 'màn hình', 'kỹ thuật số', 'trực tuyến', 'tải xuống', 'thiết bị'],
+  'Thiên nhiên & Môi trường': ['tree', 'forest', 'mountain', 'river', 'ocean', 'environment', 'nature', 'pollution', 'plant', 'flower', 'grass', 'lake', 'planet', 'thiên nhiên', 'môi trường', 'cây cối', 'khu rừng', 'ngọn núi', 'dòng sông', 'ô nhiễm', 'bông hoa', 'cỏ cây', 'trái đất', 'hành tinh'],
+  'Mua sắm & Tiền bạc': ['shop', 'shopping', 'money', 'price', 'cost', 'market', 'store', 'cash', 'bank', 'expensive', 'cheap', 'discount', 'mua sắm', 'cửa hàng', 'giá cả', 'thanh toán', 'chi phí', 'khu chợ', 'tiền mặt', 'ngân hàng', 'đắt tiền', 'giảm giá'],
+  'Giải trí & Sở thích': ['music', 'movie', 'film', 'hobby', 'dance', 'song', 'paint', 'draw', 'party', 'concert', 'cinema', 'circus', 'cartoon', 'club', 'competition', 'costume', 'giải trí', 'sở thích', 'âm nhạc', 'bộ phim', 'nhảy múa', 'bài hát', 'nghệ thuật', 'buổi tiệc', 'buổi hòa nhạc', 'rạp chiếu phim', 'rạp xiếc', 'cuộc thi'],
+  'Giao thông': ['traffic', 'road', 'drive', 'ride', 'motorbike', 'taxi', 'ship', 'boat', 'train', 'bus', 'car', 'plane', 'bike', 'bicycle', 'giao thông', 'con đường', 'lái xe', 'xe máy', 'con tàu', 'xe buýt', 'máy bay', 'xe đạp'],
+  'Địa điểm & Thành phố': ['city', 'town', 'building', 'village', 'square', 'avenue', 'location', 'neighborhood', 'downtown', 'castle', 'museum', 'library', 'restaurant', 'bridge', 'corner', 'balcony', 'basement', 'café', 'cafe', 'địa điểm', 'thành phố', 'thị trấn', 'tòa nhà', 'công viên', 'ngôi làng', 'quảng trường', 'khu phố', 'lâu đài', 'bảo tàng', 'thư viện', 'nhà hàng', 'cây cầu'],
+  'Giao tiếp & Ngôn ngữ': ['language', 'sentence', 'conversation', 'communicate', 'explain', 'giao tiếp', 'ngôn ngữ', 'nói chuyện', 'câu văn', 'hội thoại', 'giải thích'],
+  'Kinh doanh & Kinh tế': ['business', 'economy', 'trade', 'industry', 'profit', 'investment', 'customer', 'product', 'service', 'kinh doanh', 'kinh tế', 'thương mại', 'ngành công nghiệp', 'lợi nhuận', 'đầu tư', 'khách hàng', 'sản phẩm', 'dịch vụ'],
+  'Hình dạng & Kích thước': ['shape', 'circle', 'square', 'triangle', 'round', 'size', 'narrow', 'hình dạng', 'kích thước', 'hình tròn', 'hình vuông', 'hình tam giác', 'chiều rộng'],
+  'Ý kiến & Quan điểm': ['as far as i know', 'as far as i\'m concerned', 'in my opinion', 'from my point of view', 'if you ask me', 'i see your point', 'i\'m not so sure', 'to be honest', 'to tell you the truth', 'as a matter of fact', 'point of view', 'speaking of which', 'quan điểm', 'ý kiến', 'theo tôi', 'theo ý tôi'],
+  'Đồng ý & Phản đối': ['i couldn\'t agree more', 'agree to disagree', 'i beg to differ', 'that makes sense', 'not necessarily', 'quite the contrary', 'far from it', 'by no means', 'a double standard', 'đồng ý', 'phản đối', 'không đồng ý'],
+  'Đề nghị & Lời khuyên': ['why don\'t you', 'you\'d better', 'you had better', 'had better', 'would you like me to', 'do you mind if', 'if you don\'t mind', 'i was wondering if', 'think twice', 'weigh the pros and cons', 'đề nghị', 'lời khuyên', 'nên'],
+  'Tóm tắt & Nhấn mạnh': ['in a nutshell', 'long story short', 'all things considered', 'by and large', 'when it comes to', 'needless to say', 'it goes without saying', 'no doubt about it', 'for what it\'s worth', 'get to the point', 'cut to the chase', 'suffice it to say', 'for all intents and purposes', 'on balance', 'all told', 'tóm lại', 'tóm tắt', 'nói tóm lại']
+};
+const CATEGORY_MATCHERS = Object.entries(CATEGORY_KEYWORDS).map(function(entry){
+  const category = entry[0];
+  const matchers = entry[1].map(function(kw){
+    const lower = kw.toLowerCase();
+    const isAscii = /^[a-z' -]+$/.test(lower);
+    return isAscii
+      ? { re: new RegExp('\\b' + lower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b') }
+      : { plain: lower };
+  });
+  return { category: category, matchers: matchers };
+});
+const POS_FALLBACK_CATEGORY = {
+  'idiom': 'Thành ngữ',
+  'phrasal verb': 'Cụm động từ',
+  'phrase': 'Cụm từ thông dụng',
+  'noun phrase': 'Cụm từ thông dụng',
+  'adv phrase': 'Cụm từ thông dụng',
+  'modal phrase': 'Cụm từ thông dụng'
+};
+function getCategoryForWord(item) {
+  const text = (item.word + ' ' + item.vi_meaning + ' ' + item.en_example).toLowerCase();
+  for (const { category, matchers } of CATEGORY_MATCHERS) {
+    if (matchers.some(function(m){ return m.re ? m.re.test(text) : text.includes(m.plain); })) return category;
+  }
+  if (POS_FALLBACK_CATEGORY[item.pos]) return POS_FALLBACK_CATEGORY[item.pos];
+  return 'Khác';
+}
 const PAGE_SIZE = 6000;
 let currentFilter = '';
 
@@ -2073,6 +2153,7 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 
 let voiceSrc = localStorage.getItem('voiceSrc') || 'auto';
 let accent = localStorage.getItem('accent') || 'us';
+let showDetails = localStorage.getItem('showDetails') !== 'false';
 
 let currentAudio = null;
 let activeBtn = null;
@@ -2236,8 +2317,14 @@ function escapeHTML(s){
 function getFiltered(){
   const data = DATA[currentList];
   const q = currentFilter.trim().toLowerCase();
-  if(!q) return data;
-  return data.filter(function(e){
+  let filtered = data;
+  if(currentCategory) {
+    filtered = filtered.filter(function(e){
+      return getCategoryForWord(e) === currentCategory;
+    });
+  }
+  if(!q) return filtered;
+  return filtered.filter(function(e){
     return e.word.toLowerCase().includes(q) ||
            (e.vi_meaning||'').toLowerCase().includes(q) ||
            (e.en_example||'').toLowerCase().includes(q);
@@ -2261,13 +2348,16 @@ function render(){
         '<div class="word-row">' +
           '<span class="word" data-text="' + escapeHTML(e.word) + '" title="Click để nghe phát âm và sao chép">' + escapeHTML(e.word) + '</span>' +
           '<button class="audio-btn" data-text="' + escapeHTML(e.word) + '" title="Phát âm và sao chép từ">🔊</button>' +
+          '<button class="expand-btn' + (showDetails ? '' : ' collapsed') + '" title="Hiện/ẩn chi tiết">▼</button>' +
+        '</div>' +
+        '<div class="details' + (showDetails ? '' : ' collapsed') + '">' +
           '<span class="ipa">' + escapeHTML(e.ipa) + '</span>' +
           '<span class="pos">' + escapeHTML(e.pos) + '</span>' +
-        '</div>' +
-        '<div class="meaning">' + escapeHTML(e.vi_meaning) + '</div>' +
-        '<div class="example" data-text="' + escapeHTML(e.en_example) + '" title="Click để nghe và sao chép câu ví dụ">' +
-          '<div class="en">' + escapeHTML(e.en_example) + ' 🔊</div>' +
-          '<div class="vi">' + escapeHTML(e.vi_example) + '</div>' +
+          '<div class="meaning">' + escapeHTML(e.vi_meaning) + '</div>' +
+          '<div class="example" data-text="' + escapeHTML(e.en_example) + '" title="Click để nghe và sao chép câu ví dụ">' +
+            '<div class="en">' + escapeHTML(e.en_example) + ' 🔊</div>' +
+            '<div class="vi">' + escapeHTML(e.vi_example) + '</div>' +
+          '</div>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -2329,9 +2419,19 @@ document.addEventListener('click', function(e){
     document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
     t.classList.add('active');
     currentList = t.dataset.list;
+    currentCategory = '';
+    document.getElementById('categoryFilter').value = '';
     currentPage = 1;
     stopPlayAll();
+    updateCategoryFilter();
     render();
+    return;
+  }
+  const expandBtn = e.target.closest('.expand-btn');
+  if(expandBtn){
+    const details = expandBtn.closest('.card').querySelector('.details');
+    details.classList.toggle('collapsed');
+    expandBtn.classList.toggle('collapsed');
     return;
   }
   let target = e.target.closest('[data-text]');
@@ -2356,6 +2456,35 @@ document.getElementById('searchBox').addEventListener('input', function(e){
   render();
 });
 
+function updateCategoryFilter(){
+  const data = DATA[currentList];
+  const counts = new Map();
+  data.forEach(function(item){
+    const cat = getCategoryForWord(item);
+    counts.set(cat, (counts.get(cat) || 0) + 1);
+  });
+  const sorted = Array.from(counts.keys()).sort();
+  const sel = document.getElementById('categoryFilter');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Tất cả chủ đề (' + data.length + ')</option>' +
+    sorted.map(function(cat){
+      return '<option value="' + cat + '">' + cat + ' (' + counts.get(cat) + ')</option>';
+    }).join('');
+  sel.value = current;
+}
+
+document.getElementById('categoryFilter').addEventListener('change', function(e){
+  currentCategory = e.target.value;
+  currentPage = 1;
+  stopPlayAll();
+  render();
+});
+
+document.getElementById('toggleControlsBtn').addEventListener('click', function(){
+  const section = document.getElementById('controlsSection');
+  section.classList.toggle('hidden');
+});
+
 const voiceSelEl = document.getElementById('voiceSel');
 voiceSelEl.value = voiceSrc;
 voiceSelEl.addEventListener('change', function(e){
@@ -2368,12 +2497,20 @@ accentSelEl.addEventListener('change', function(e){
   accent = e.target.value;
   localStorage.setItem('accent', accent);
 });
+const showDetailsEl = document.getElementById('showDetails');
+showDetailsEl.checked = showDetails;
+showDetailsEl.addEventListener('change', function(e){
+  showDetails = e.target.checked;
+  localStorage.setItem('showDetails', showDetails);
+  render();
+});
 
 if('speechSynthesis' in window){
   window.speechSynthesis.onvoiceschanged = function(){ window.speechSynthesis.getVoices(); };
   window.speechSynthesis.getVoices();
 }
 
+updateCategoryFilter();
 render();
 
 const scrollTopBtn = document.getElementById('scrollTopBtn');
